@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <title>OTA抓价</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-color: #0f172a;
+      --card-bg: #1e293b;
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --primary: #3b82f6;
+      --success: #22c55e;
+      --purple: #8b5cf6;
+      --danger: #ef4444;
+      --border: #334155;
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg-color);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #475569;
+      border-radius: 3px;
+    }
+
+    body {
+      width: 500px;
+      height: 600px;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* Header */
+    header {
+      background: #2563eb;
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+
+    .logo-circle {
+      width: 28px;
+      height: 28px;
+      background: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #2563eb;
+      font-size: 16px;
+    }
+
+    .plugin-identity {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .plugin-title {
+      font-size: 13px;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .plugin-version {
+      font-size: 10px;
+      opacity: 0.7;
+      cursor: pointer;
+    }
+
+    .logout-btn {
+      opacity: 0.8;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 50%;
+      display: flex;
+      transition: all 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    /* Conn Bar & Inline Store Switcher */
+    .conn-bar {
+      background: #1e293b;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .store-display {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .store-info-box {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+    }
+
+    .store-arrow {
+      font-size: 12px;
+      transition: transform 0.3s;
+      color: var(--text-sub);
+    }
+
+    #store-switcher-panel.active-dropdown .store-arrow {
+      transform: rotate(180deg);
+    }
+
+    .store-dropdown {
+      display: none;
+      background: #0f172a;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      max-height: 150px;
+      overflow-y: auto;
+      margin-top: 5px;
+    }
+
+    .store-dropdown.active {
+      display: block;
+    }
+
+    .store-item {
+      padding: 10px 12px;
+      font-size: 12px;
+      color: var(--text-main);
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .store-item:last-child {
+      border-bottom: none;
+    }
+
+    .store-item:hover {
+      background: var(--primary);
+    }
+
+    .store-item.selected {
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .store-checkbox {
+      margin-right: 8px;
+    }
+
+    .store-name-click {
+      flex: 1;
+    }
+
+    .store-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: var(--text-main);
+      cursor: pointer;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Main Content Area */
+    .content-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Action Panel */
+    .action-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .action-btn {
+      border: none;
+      border-radius: 10px;
+      padding: 14px 8px;
+      color: white;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.1s, filter 0.2s;
+    }
+
+    .action-btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-blue {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    }
+
+    .btn-purple {
+      background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+    }
+
+    /* Scheduler & Timers */
+    .scheduler-card {
+      background: rgba(30, 41, 59, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .timer-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 8px;
+    }
+
+    .timer-label {
+      font-size: 12px;
+      color: var(--text-sub);
+    }
+
+    .timer-value {
+      font-weight: 700;
+      color: var(--text-main);
+      font-size: 13px;
+    }
+
+    .countdown-timer {
+      font-family: 'Monaco', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: #60a5fa;
+      background: rgba(15, 23, 42, 0.4);
+      padding: 2px 8px;
+      border-radius: 4px;
+      min-width: 70px;
+      text-align: center;
+    }
+
+    /* Progress Console */
+    .progress-box {
+      background: #1e293b;
+      border: 1px solid var(--success);
+      border-radius: 12px;
+      padding: 12px;
+    }
+
+    .progress-track {
+      background: #334155;
+      height: 6px;
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .progress-bar {
+      background: var(--success);
+      height: 100%;
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    /* History Log */
+    .log-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 200px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-sub);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .log-container {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .log-header {
+      background: #334155;
+      padding: 8px 12px;
+      display: grid;
+      grid-template-columns: 18% 40% 18% 14% 10%;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-sub);
+    }
+
+    .log-content {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .log-row {
+      display: grid;
+      grid-template-columns: 18% 40% 18% 14% 10%;
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border);
+      font-size: 11px;
+      align-items: center;
+    }
+
+    .log-row:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      min-height: 100px;
+      color: var(--text-sub);
+      font-size: 12px;
+      gap: 10px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.95);
+      z-index: 100;
+      padding: 20px;
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .modal-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hotel-list-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    /* [v6.6.0] Hierarchical Styles */
+    .hotel-group {
+      margin-bottom: 12px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      overflow: hidden;
+    }
+
+    .hotel-parent {
+      background: rgba(255, 255, 255, 0.04);
+      padding: 14px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .hotel-arrow {
+      margin-right: 12px;
+      transition: transform 0.2s;
+      color: var(--text-sub);
+    }
+
+    .hotel-group.expanded .hotel-arrow {
+      transform: rotate(90deg);
+    }
+
+    .competitor-list {
+      display: none;
+      padding: 0 12px 12px 40px;
+    }
+
+    .hotel-group.expanded .competitor-list {
+      display: block;
+    }
+
+    .hotel-child {
+      padding: 10px 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.03);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    /* Switch Style */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 34px;
+      height: 18px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #334155;
+      transition: .3s;
+      border-radius: 20px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 12px;
+      width: 12px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked+.slider {
+      background: var(--primary);
+    }
+
+    /* Setup Panel */
+    #setup-panel {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      text-align: center;
+      box-sizing: border-box;
+      background: #0f172a;
+    }
+
+    .logo-giant {
+      width: 64px;
+      height: 64px;
+      background: #2563eb;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      font-weight: 900;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+    }
+
+    .input-field {
+      width: 100%;
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 12px;
+      color: white;
+      margin-bottom: 16px;
+      display: block;
+      outline: none;
+    }
+
+    .input-field:focus {
+      border-color: var(--primary);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- VIEW: SETUP -->
+  <div id="setup-panel" class="hidden">
+    <div class="logo-giant">R</div>
+    <h2 style="margin:0 0 8px;">酒店收益管理系统</h2>
+    <p style="color:var(--text-sub); margin-bottom:32px;">连接您的门店以开始智能采集</p>
+    <input type="text" id="usernameInput" class="input-field" placeholder="登录账号">
+    <div style="position:relative; width:100%;">
+      <input type="password" id="passwordInput" class="input-field" placeholder="登录密码">
+      <span id="togglePassword"
+        style="position:absolute; right:12px; top:12px; cursor:pointer; color:var(--text-sub);">👁️</span>
+    </div>
+    <div
+      style="display:flex; align-items:center; justify-content: flex-start; gap:8px; margin-bottom:24px; color:var(--text-sub); font-size:12px; width:100%;">
+      <input type="checkbox" id="rememberMe" style="margin:0;"> <label for="rememberMe"
+        style="cursor:pointer;">记住我的登录信息</label>
+    </div>
+    <button id="save-config-btn"
+      style="width:100%; background:#2563eb; color:white; border:none; padding:14px; border-radius:10px; font-weight:700; cursor:pointer;">立即登录系统</button>
+  </div>
+
+  <!-- VIEW: MAIN -->
+  <div id="main-panel" class="hidden" style="flex:1; display:flex; flex-direction:column; overflow:hidden;">
+    <header>
+      <div class="plugin-identity">
+        <div class="logo-circle">R</div>
+        <div style="text-align:left;">
+          <h1 class="plugin-title">OTA抓价</h1>
+          <div id="version-btn" class="plugin-version" title="双击打开校准工具">Loading...</div>
+        </div>
+      </div>
+      <div id="logout-btn" class="logout-btn">
+        <svg style="width:18px; height:18px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+            stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </div>
+    </header>
+
+    <div class="conn-bar" id="store-switcher-container">
+      <div class="store-display" id="store-trigger">
+        <div class="store-info-box">
+          <span style="color:var(--text-sub);">当前管理门店:</span>
+          <span id="storeName" style="font-weight:700; color:var(--success);">--</span>
+        </div>
+        <span class="store-arrow">▼</span>
+      </div>
+      <div id="store-dropdown-list" class="store-dropdown">
+        <!-- JS Populated -->
+      </div>
+    </div>
+
+    <div class="content-scroll">
+      <!-- Actions -->
+      <div id="action-panel" class="action-panel">
+        <button id="btn-today" class="action-btn btn-blue">
+          <svg style="width:20px;height:20px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M13 10V3L4 14h7v7l9-11h-7z" stroke-width="2"></path>
+          </svg>
+          <span style="font-weight:600; font-size:12px;">抓取今日价格</span>
+        </button>
+        <button id="btn-future" class="action-btn btn-purple">
+          <svg style="width:20px;height:20px" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              stroke-width="2"></path>
+          </svg>
+          <span style="font-weight:600; font-size:12px;">抓取未来价格</span>
+        </button>
+      </div>
+
+      <!-- [v1.2.6] Integrated Strategy & Countdown Section (Compressed) -->
+      <div class="scheduler-card" style="border-color: #60a5fa; background: rgba(59, 130, 246, 0.05); padding: 10px;">
+        <div style="display:flex; align-items:center; justify-content: space-between; margin-bottom:8px;">
+          <div style="display:flex; align-items:center; gap:6px; opacity:0.9;">
+            <svg style="width:14px; height:14px" fill="none" stroke="#60a5fa" viewBox="0 0 24 24">
+              <path
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                stroke-width="2"></path>
+            </svg>
+            <span style="font-size:12px; font-weight:800; color: #60a5fa;">采集策略 & 实时状态</span>
+          </div>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <button id="btn-sync-config" title="从云端手动同步配置"
+              style="background:none; border:none; padding:4px; cursor:pointer; display:flex; align-items:center; justify-content:center; border-radius:4px; transition:all 0.2s;"
+              onmouseover="this.style.background='rgba(59,130,246,0.1)'" onmouseout="this.style.background='none'">
+              <svg id="sync-icon" style="width:12px; height:12px" fill="none" stroke="#60a5fa" viewBox="0 0 24 24">
+                <path
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                  stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </button>
+            <span id="sync-status-badge"
+              style="font-size: 9px; background: #065f46; color: #34d399; padding: 1px 6px; border-radius: 10px;">配置已同步</span>
+          </div>
+        </div>
+
+        <!-- Row 1: Today Scrape -->
+        <div
+          style="background: rgba(15, 23, 42, 0.4); padding: 6px 10px; border-radius: 6px; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; flex-direction: column; gap: 0px;">
+            <span style="font-size: 10px; color: var(--text-sub);">今日抓取策略 (逐小时)</span>
+            <span id="strat-active-hours" style="font-size: 12px; font-weight: 700; color: var(--text-main);">--:00 -
+              --:59</span>
+          </div>
+          <span id="next-task-time-today" class="countdown-timer"
+            style="font-size: 14px; padding: 2px 8px;">--:--:--</span>
+        </div>
+
+        <!-- Row 2: Future Scrape -->
+        <div
+          style="background: rgba(15, 23, 42, 0.4); padding: 6px 10px; border-radius: 6px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+          <div style="display: flex; flex-direction: column; gap: 0px;">
+            <span style="font-size: 10px; color: var(--text-sub);">未来全量抓取 (每日 05:00)</span>
+            <span id="strat-future-days" style="font-size: 12px; font-weight: 700; color: #a78bfa;">未来 -- 天</span>
+          </div>
+          <span id="next-task-time-future" class="countdown-timer"
+            style="font-size: 14px; padding: 2px 8px; color: #a78bfa;">--:--:--</span>
+        </div>
+
+        <!-- Row 3: Concurrency & Interval -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+          <div
+            style="background: rgba(30, 41, 59, 0.6); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 10px; color: var(--text-sub);">并发线程</span>
+            <span id="strat-concurrency" style="font-size: 12px; font-weight: 700; color: var(--text-main);">1 线程</span>
+          </div>
+          <div
+            style="background: rgba(30, 41, 59, 0.6); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-size: 10px; color: var(--text-sub);">开启间隔</span>
+            <span id="strat-interval" style="font-size: 12px; font-weight: 700; color: var(--text-main);">3 秒</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Console -->
+      <div id="automation-console" class="progress-box hidden">
+        <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700;">
+          <span style="color:var(--success);">正在抓取...</span>
+          <span id="progress-text">0/0</span>
+        </div>
+        <div class="progress-track">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+          <button id="btn-pause"
+            style="background:#334155; color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; font-size:11px;">⏸
+            暂停</button>
+          <button id="btn-stop"
+            style="background:var(--danger); color:white; border:none; padding:8px; border-radius:6px; cursor:pointer; font-size:11px;">⏹
+            结束任务</button>
+        </div>
+        <div id="progress-status" style="font-size:10px; color:var(--text-sub); text-align:center; margin-top:8px;">
+          准备中...</div>
+      </div>
+
+      <!-- History -->
+      <div class="log-section">
+        <div class="section-title">
+          <span>抓取详情 & 历史</span>
+          <span style="opacity:0.5; font-weight:400;">(最新 50 条)</span>
+        </div>
+        <div class="log-container">
+          <div class="log-header">
+            <div>时间</div>
+            <div>酒店名</div>
+            <div>目标日期</div>
+            <div>价格</div>
+            <div style="text-align:center;">状态</div>
+          </div>
+          <div id="activity-log-body" class="log-content"></div>
+          <div id="empty-log" class="empty-state">暂无数据</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW: HOTEL MANAGER -->
+  <div id="hotel-manager-overlay" class="overlay hidden">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div style="font-weight:700; font-size:14px;">门店酒店管理</div>
+        <button id="close-manager"
+          style="background:none; border:none; color:var(--text-sub); font-size:24px; cursor:pointer;">&times;</button>
+      </div>
+      <div id="hotel-list-container" class="hotel-list-scroll">
+        <div class="empty-state">正在拉取列表...</div>
+      </div>
+      <div
+        style="padding:16px; border-top:1px solid var(--border); font-size:11px; color:var(--text-sub); text-align:center;">
+        提示: 开启后的酒店将在自动任务中被采集
+      </div>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+
+</html>

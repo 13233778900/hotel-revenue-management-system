@@ -1,0 +1,288 @@
+/* PMS数据采集助手 - 样式文件 */
+
+/* 一键上传按钮 */
+.pms-upload-button {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 999999;
+  padding: 12px 24px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 25px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.pms-upload-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+}
+
+.pms-upload-button:active {
+  transform: translateY(0);
+}
+
+.pms-upload-button.loading {
+  opacity: 0.8;
+  cursor: not-allowed;
+}
+
+.pms-upload-button.success {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+}
+
+.pms-upload-button.error {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+/* 状态指示器 */
+.pms-status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: white;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}
+
+/* 成功/失败图标 */
+.pms-icon {
+  font-size: 16px;
+}
+
+/* 消息提示 */
+.pms-message {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  z-index: 999999;
+  padding: 12px 20px;
+  background: #1f2937;
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.pms-message.success {
+  background: #10b981;
+}
+
+.pms-message.error {
+  background: #ef4444;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* 数据预览面板 */
+.pms-preview-panel {
+  position: fixed;
+  top: 120px;
+  right: 20px;
+  z-index: 999998;
+  width: 300px;
+  max-height: 400px;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  overflow-y: auto;
+  padding: 16px;
+  animation: slideIn 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.pms-preview-panel h3 {
+  margin-top: 0;
+  font-size: 16px;
+  color: #1f2937;
+  margin-bottom: 12px;
+}
+
+.pms-preview-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.pms-preview-item:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.pms-preview-label {
+  font-size: 12px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.pms-preview-value {
+  font-size: 13px;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+/* 关闭按钮 */
+.pms-close-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.pms-close-button:hover {
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+/* 插件管理界面样式 */
+.pms-popup {
+  width: 300px;
+  padding: 20px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.pms-popup h1 {
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: 20px;
+  color: #1f2937;
+  text-align: center;
+}
+
+.pms-section {
+  margin-bottom: 20px;
+}
+
+.pms-section h2 {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #374151;
+}
+
+.pms-input-group {
+  margin-bottom: 15px;
+}
+
+.pms-input-group label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 5px;
+  color: #6b7280;
+}
+
+.pms-input-group input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.pms-input-group input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.pms-button {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.pms-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+}
+
+.pms-button:active {
+  transform: translateY(0);
+}
+
+.pms-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pms-status {
+  font-size: 12px;
+  margin-top: 10px;
+  text-align: center;
+}
+
+.pms-status.success {
+  color: #10b981;
+}
+
+.pms-status.error {
+  color: #ef4444;
+}
+
+.pms-status.info {
+  color: #6b7280;
+}
+
+/* 分隔线 */
+.pms-divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 20px 0;
+}
+
+/* 版本信息 */
+.pms-version {
+  font-size: 11px;
+  color: #9ca3af;
+  text-align: center;
+  margin-top: 20px;
+}
